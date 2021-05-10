@@ -596,23 +596,26 @@ public Action Command_SpawnArwing(int client, int args)
 	if (args > 0)
 		GetCmdArg(1, sName, sizeof(sName));
 
-	int arraySize = GetArraySize(g_hArwings);
-	if (arraySize >= 30)
+	if (!(GetUserFlagBits(client) & ADMFLAG_ROOT))
 	{
-		ReplyToCommand(client, "Global limit of Arwings has been reached.");
-		return Plugin_Handled;
-	}
-
-	int serial = GetClientSerial(client);
-	for (int i = 0, count; i < arraySize; i++)
-	{
-		if (serial == GetArrayCell(g_hArwings, i, Arwing_Owner))
-			count++;
-		
-		if (count >= 3)
+		int arraySize = GetArraySize(g_hArwings);
+		if (arraySize >= 30)
 		{
-			ReplyToCommand(client, "You've reached your Arwing limit.");
+			ReplyToCommand(client, "Global limit of Arwings has been reached.");
 			return Plugin_Handled;
+		}
+
+		int serial = GetClientSerial(client);
+		for (int i = 0, count; i < arraySize; i++)
+		{
+			if (serial == GetArrayCell(g_hArwings, i, Arwing_Owner))
+				count++;
+			
+			if (count >= 3)
+			{
+				ReplyToCommand(client, "You've reached your Arwing limit.");
+				return Plugin_Handled;
+			}
 		}
 	}
 
