@@ -36,6 +36,7 @@
 enum
 {
 	Arwing_EntRef = 0,
+	Arwing_Owner,
 	Arwing_Enabled,
 	Arwing_Destroyed,
 	Arwing_Obliterated,

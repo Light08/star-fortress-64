@@ -29,7 +29,7 @@ stock int SpawnVehicle(int iVehicleType, const char[] sName, const float flPos[3
 {
 	switch (iVehicleType)
 	{
-		case VehicleType_Arwing: return SpawnArwing(sName, flPos, flAng, flVelocity, iIndex);
+		case VehicleType_Arwing: return SpawnArwing(0, sName, flPos, flAng, flVelocity, iIndex);
 	}
 	
 	return INVALID_ENT_REFERENCE;

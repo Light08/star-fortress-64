@@ -215,7 +215,7 @@ stock Handle GetConfigOfArwing(int iArwing)
 	return GetArwingConfig(sName);
 }
 
-stock int SpawnArwing(const char[] sName, const float flPos[3], const float flAng[3], const float flVelocity[3], int &iIndex=-1)
+stock int SpawnArwing(int client, const char[] sName, const float flPos[3], const float flAng[3], const float flVelocity[3], int &iIndex=-1)
 {
 	Handle hConfig = GetArwingConfig(sName);
 	if (hConfig == INVALID_HANDLE)
@@ -240,6 +240,11 @@ stock int SpawnArwing(const char[] sName, const float flPos[3], const float flAn
 		DispatchKeyValue(iArwing, "classname", "sf64_vehicle_arwing");
 		
 		iIndex = PushArrayCell(g_hArwings, EntIndexToEntRef(iArwing));
+
+		int owner;
+		if (IsValidClient(client) && IsClientInGame(client))
+			owner = GetClientSerial(client);
+		SetArrayCell(g_hArwings, iIndex, owner, Arwing_Owner);
 		
 		char sEntRef[256];
 		IntToString(EntIndexToEntRef(iArwing), sEntRef, sizeof(sEntRef));

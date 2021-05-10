@@ -149,9 +149,9 @@ public void OnPluginStart()
 	HookEvent("player_death", Event_PlayerDeath);
 	HookEvent("post_inventory_application", Event_PostInventoryApplication);
 	
-	RegAdminCmd("sm_sf64_spawn_arwing", Command_SpawnArwing, ADMFLAG_CHEATS);
-	RegAdminCmd("sm_sf64_forceintovehicle", Command_ForceIntoVehicle, ADMFLAG_CHEATS);
-	RegAdminCmd("sm_sf64_spawn_pickup", Command_SpawnPickup, ADMFLAG_CHEATS);
+	RegAdminCmd("sm_arwing", Command_SpawnArwing, ADMFLAG_CHEATS);
+	RegAdminCmd("sm_sf64_forceintovehicle", Command_ForceIntoVehicle, ADMFLAG_KICK);
+	RegAdminCmd("sm_sf64_spawn_pickup", Command_SpawnPickup, ADMFLAG_KICK);
 
 	RegAdminCmd("sm_sf64_reloadconfigs", Command_ReloadConfigs, ADMFLAG_ROOT);
 	
@@ -596,6 +596,26 @@ public Action Command_SpawnArwing(int client, int args)
 	if (args > 0)
 		GetCmdArg(1, sName, sizeof(sName));
 
+	int arraySize = GetArraySize(g_hArwings);
+	if (arraySize >= 30)
+	{
+		ReplyToCommand(client, "Global limit of Arwings has been reached.");
+		return Plugin_Handled;
+	}
+	
+	int serial = GetClientSerial(client);
+	for (int i = 0, count; i < arraySize; i++)
+	{
+		if (serial == GetClientFromSerial(GetArrayCell(g_hArwings, i, Arwing_Owner)))
+			count++;
+		
+		if (count >= 3)
+		{
+			ReplyToCommand(client, "You've reached your Arwing limit.");
+			return Plugin_Handled;
+		}
+	}
+
 	// If the arwing does not exist, let the player know which configs exist.
 	Handle hConfig = GetArwingConfig(sName);
 	if (hConfig == INVALID_HANDLE)
@@ -635,7 +655,7 @@ public Action Command_SpawnArwing(int client, int args)
 	
 	flEyeAng[0] = 0.0; flEyeAng[2] = 0.0;
 
-	SpawnArwing(sName, flEndPos, flEyeAng, NULL_VECTOR);
+	SpawnArwing(client, sName, flEndPos, flEyeAng, NULL_VECTOR);
 	
 	return Plugin_Handled;
 }
