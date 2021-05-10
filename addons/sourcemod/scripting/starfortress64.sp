@@ -602,11 +602,11 @@ public Action Command_SpawnArwing(int client, int args)
 		ReplyToCommand(client, "Global limit of Arwings has been reached.");
 		return Plugin_Handled;
 	}
-	
+
 	int serial = GetClientSerial(client);
 	for (int i = 0, count; i < arraySize; i++)
 	{
-		if (serial == GetClientFromSerial(GetArrayCell(g_hArwings, i, Arwing_Owner)))
+		if (serial == GetArrayCell(g_hArwings, i, Arwing_Owner))
 			count++;
 		
 		if (count >= 3)
