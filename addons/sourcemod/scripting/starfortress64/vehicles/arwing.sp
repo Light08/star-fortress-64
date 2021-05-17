@@ -157,7 +157,7 @@ void RemoveArwingConfig(const char[] sName)
 	if (GetTrieValue(g_hArwingConfigs, sName, hConfig) && hConfig != INVALID_HANDLE)
 	{
 		CloseHandle(hConfig);
-		SetTrieValue(g_hArwingConfigs, sName, INVALID_HANDLE);
+		RemoveFromTrie(g_hArwingConfigs, sName);
 	}
 }
 

@@ -773,8 +773,16 @@ public Action Command_ForceIntoVehicle(int client, int args)
 
 public Action Command_ReloadConfigs(int client, int args)
 {
+	// Clear old list before rebuilding it.
+	if (g_hArwingConfigs != INVALID_HANDLE)
+		ClearTrie(g_hArwingConfigs);
+
 	LoadAllArwingConfigs();
-	ReplyToCommand(client, "Arwing configs have been reloaded! Existing arwings will keep their current configs.");
+	ReplyToCommand(client, "Arwing configs have been reloaded! Existing arwings will may keep some of their current configs.");
+
+	return Plugin_Handled;
+}
+
 
 	return Plugin_Handled;
 }
