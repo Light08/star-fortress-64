@@ -153,6 +153,8 @@ public void OnPluginStart()
 	RegAdminCmd("sm_sf64_forceintovehicle", Command_ForceIntoVehicle, ADMFLAG_KICK);
 	RegAdminCmd("sm_sf64_spawn_pickup", Command_SpawnPickup, ADMFLAG_KICK);
 
+	RegConsoleCmd("sm_removearwings", Command_RemoveArwings);
+
 	RegAdminCmd("sm_sf64_reloadconfigs", Command_ReloadConfigs, ADMFLAG_ROOT);
 	
 	AddCommandListener(Hook_CommandVoiceMenu, "voicemenu");
@@ -783,7 +785,55 @@ public Action Command_ReloadConfigs(int client, int args)
 	return Plugin_Handled;
 }
 
+public Action Command_RemoveArwings(int client, int args)
+{
+	int arraySize = GetArraySize(g_hArwings);
 
+	// If staff, allow targteing other players, otherwise remove only your own arwings.
+	if (GetUserFlagBits(client) & ADMFLAG_KICK)
+	{
+		if (args == 1)
+		{
+			char arg1[64], target_name[MAX_TARGET_LENGTH];
+			GetCmdArg(1, arg1, sizeof(arg1));
+
+			int target_list[MAXPLAYERS], target_count;
+			bool tn_is_ml;
+			if ((target_count = ProcessTargetString(arg1, client, target_list, MAXPLAYERS, 0, target_name, sizeof(target_name), tn_is_ml)) <= 0)
+			{
+				ReplyToTargetError(client, target_count);
+				return Plugin_Handled;
+			}
+
+			// Remove every target's Arwings.
+			for (int i = 0; i < target_count; i++)
+			{
+				int serial = GetClientSerial(target_list[i]);
+				for (int j = 0; j < arraySize; j++)
+				{
+					if (serial == GetArrayCell(g_hArwings, j, Arwing_Owner))
+						DestroyArwing( EntRefToEntIndex(GetArrayCell(g_hArwings, j, Arwing_EntRef)), 0, 0);
+				}
+			}
+			
+			PrintToChatAll("\x04[SM] %N has removed all Arwings from %s.", client, target_name);
+			return Plugin_Handled;
+		}
+		else if (args > 1)
+		{
+			ReplyToCommand(client, "Usage: sm_removearwing [target]");
+			return Plugin_Handled;
+		}
+	}
+
+	int serial = GetClientSerial(client);
+	for (int i = 0; i < arraySize; i++)
+	{
+		if (serial == GetArrayCell(g_hArwings, i, Arwing_Owner))
+			DestroyArwing( EntRefToEntIndex(GetArrayCell(g_hArwings, i, Arwing_EntRef)), 0, 0);
+	}
+
+	ReplyToCommand(client, "\x04You have removed all your Arwings.");
 	return Plugin_Handled;
 }
 
