@@ -132,7 +132,8 @@ public void MusicOnClientPutInServer(int client)
 
 public void MusicOnClientDisconnect(int client)
 {
-	MusicRemoveAllActiveMusicIdsFromPlayer(client);
+	if (g_hPlayerActiveMusic[client] != INVALID_HANDLE)
+		MusicRemoveAllActiveMusicIdsFromPlayer(client);
 
 	g_iPlayerActiveMusicId[client] = -1;
 	g_flPlayerActiveMusicVolume[client] = 0.0;
