@@ -215,6 +215,32 @@ stock Handle GetConfigOfArwing(int iArwing)
 	return GetArwingConfig(sName);
 }
 
+stock int GetArwingConfigFlagBits(const char[] sName)
+{
+	Handle hConfig = GetArwingConfig(sName);
+	if (hConfig == INVALID_HANDLE)
+		return 0;
+
+	char sBuffer[PLATFORM_MAX_PATH];
+	KvRewind(hConfig);
+	KvGetString(hConfig, "flags", sBuffer, sizeof(sBuffer));
+
+	if (sBuffer[0] != EOS)
+	{
+		int flags;
+		for (int i = 0, len = strlen(sBuffer); i < len; i++)
+		{
+			AdminFlag flag;
+			if (FindFlagByChar(sBuffer[i], flag))
+				flags |= FlagToBit(flag);
+		}
+
+		return flags;
+	}
+
+	return 0;
+}
+
 stock int SpawnArwing(int client, const char[] sName, const float flPos[3], const float flAng[3], const float flVelocity[3], int &iIndex=-1)
 {
 	Handle hConfig = GetArwingConfig(sName);

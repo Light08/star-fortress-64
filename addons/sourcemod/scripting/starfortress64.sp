@@ -594,6 +594,9 @@ public void Event_PostInventoryApplication(Handle event, const char[] name, bool
 
 public Action Command_SpawnArwing(int client, int args)
 {
+	if (client < 0 || client > MaxClients)
+		return Plugin_Handled;
+	
 	char sName[64], message[256];
 	if (args > 0)
 		GetCmdArg(1, sName, sizeof(sName));
@@ -634,20 +637,41 @@ public Action Command_SpawnArwing(int client, int args)
 				char sConfig[32];
 				GetTrieSnapshotKey(hSnapshots, i, sConfig, sizeof(sConfig));
 
-				if (message[0] == EOS)
-					strcopy(message, sizeof(message), sConfig);
-				else
-					Format(message, sizeof(message), "%s, %s", message, sConfig);
+				int flagBits = GetArwingConfigFlagBits(sConfig);
+				if (!flagBits || GetUserFlagBits(client) & flagBits)
+				{
+					if (message[0] == EOS)
+						strcopy(message, sizeof(message), sConfig);
+					else
+						Format(message, sizeof(message), "%s, %s", message, sConfig);
+				}
 			}
 			delete hSnapshots;
 		}
 
 		if (message[0] != EOS)
-			ReplyToCommand(client, "Usage: sm_sf64_spawn_arwing <%s>", message);
+		{
+			if (strlen(message) >= (PLATFORM_MAX_PATH - 32))
+			{
+				ReplyToCommand(client, "Usage: sm_arwing <name> (check console for full list)");
+				PrintToConsole(client, "==========\nAvailable Arwings:\n%s\n==========", message);
+			}
+			else
+				ReplyToCommand(client, "Usage: sm_arwing <%s>", message);
+		}
 		else
-			ReplyToCommand(client, "Error: There are currently no arwing configs loaded.");
+			ReplyToCommand(client, "Error: There are currently no arwing configs available.");
 
 		return Plugin_Handled;
+	}
+	else
+	{
+		int flagBits = GetArwingConfigFlagBits(sName);
+		if (flagBits && !(GetUserFlagBits(client) & flagBits))
+		{
+			ReplyToCommand(client, "You have no access to this config.");
+			return Plugin_Handled;
+		}
 	}
 	
 	float flEyePos[3], flEyeAng[3], flEndPos[3];
